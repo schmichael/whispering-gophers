@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"net"
@@ -19,7 +20,7 @@ import (
 var (
 	peerAddr = flag.String("peer", "", "peer host:port")
 	bindPort = flag.Int("port", 55555, "port to bind to")
-	selfNick     = flag.String("nick", "Anonymous Coward", "nickname")
+	selfNick = flag.String("nick", "Anonymous Coward", "nickname")
 	self     string
 	discPort int = 5555
 )
@@ -40,7 +41,7 @@ func main() {
 
 	l, err := util.ListenWithPort(*bindPort)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Unable to listen on port %d: %v", *bindPort, err)
 	}
 	self = l.Addr().String()
 	log.Println("Listening on", self)
@@ -53,7 +54,7 @@ func main() {
 	for {
 		c, err := l.Accept()
 		if err != nil {
-			log.Fatal(err)
+			log.Fatalf("Unable to accept connection: %v", err)
 		}
 		go serve(c)
 	}
@@ -114,14 +115,18 @@ func serve(c net.Conn) {
 		var m Message
 		err := d.Decode(&m)
 		if err != nil {
-			log.Println(err)
+			if err == io.EOF {
+				log.Printf("%s disconnected.", c.RemoteAddr())
+			} else {
+				log.Println(err)
+			}
 			return
 		}
 		if Seen(m.ID) {
 			continue
 		}
 		nick := m.Nick
-		if(nick == "") {
+		if nick == "" {
 			nick = m.Addr
 		}
 		fmt.Printf("%s: %s\n", nick, m.Body)
