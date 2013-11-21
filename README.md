@@ -5,6 +5,23 @@ A whispernet written in Go.
 
 Based on: https://code.google.com/p/whispering-gophers/
 
+Running
+-------
+
+For the first peer:
+
+```sh
+go run main.go -nick phil
+```
+
+Next peers:
+
+```sh
+go run main.go -peer $IP_OF_PEER:55555 -nick goldy
+```
+
+Where ``$IP_OF_PEER`` is the IP address printed by a running peer.
+
 Protocol
 --------
 
@@ -51,7 +68,7 @@ Extensions
 Roughly ordered based on difficulty.
 
 1. Pretty display messages (basic implementation just dumps struct)
-1. Nicks!
+1. ~~Nicks!~~ Done!
 1. Drop old messages - requires *Timestamp* field
 1. Forget old messages (the basic daemon slowly uses all memory) - may use
    *Timestamp* field - see below
