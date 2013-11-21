@@ -125,9 +125,9 @@ func serve(c net.Conn) {
 		err := d.Decode(&m)
 		if err != nil {
 			if err == io.EOF {
-				log.Printf("%s disconnected.", c.RemoteAddr())
+				log.Printf("%s disconnected. %d peers left.", c.RemoteAddr(), len(peers.m))
 			} else {
-				log.Println(err)
+				log.Printf("%s disconnected with %v. %d peers left.", c.RemoteAddr(), err, len(peers.m))
 			}
 			return
 		}
