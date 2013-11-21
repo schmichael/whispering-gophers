@@ -17,6 +17,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net"
 	"os"
@@ -211,13 +212,16 @@ func discoveryListen() {
 		log.Fatal("Couldn't open UDP?!?")
 	}
 	for {
-		data := make([]byte, 4096)
-		_, remoteAddr, err := socket.ReadFromUDP(data)
+
+		data, err := ioutil.ReadAll(socket)
 		if err != nil {
 			log.Fatal("Problem reading UDP packet")
 		}
-		log.Printf("Adding this address to Peer List: %v", remoteAddr)
-		peers.Add(string(data))
+		bcastAddr := string(data)
+		if bcastAddr != self {
+			log.Printf("Adding this address to Peer List: %v", bcastAddr)
+			peers.Add(bcastAddr)
+		}
 
 	}
 }
