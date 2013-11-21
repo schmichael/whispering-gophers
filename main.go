@@ -22,9 +22,10 @@ var (
 	bindPort = flag.Int("port", 55555, "port to bind to")
 	selfNick = flag.String("nick", "Anonymous Coward", "nickname")
 	self     string
-	discPort int = 5555
+	discPort = 5555
 )
 
+// Defines a single message sent from one peer to another
 type Message struct {
 	// Random ID for each message used to prevent re-broadcasting messages
 	ID string
