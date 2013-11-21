@@ -116,7 +116,11 @@ func serve(c net.Conn) {
 		if Seen(m.ID) {
 			continue
 		}
-		fmt.Printf("%#v\n", m)
+		nick := m.Nick
+		if(nick == "") {
+			nick = m.Addr
+		}
+		fmt.Printf("%s: %s\n", nick, m.Body)
 		broadcast(m)
 		go dial(m.Addr)
 	}
