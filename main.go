@@ -28,6 +28,7 @@ import (
 var (
 	peerAddr = flag.String("peer", "", "peer host:port")
 	self     string
+	discPort int = 555
 )
 
 type Message struct {
@@ -46,6 +47,8 @@ func main() {
 	self = l.Addr().String()
 	log.Println("Listening on", self)
 
+	go discoveryListen()
+	go discoveryClient("255.255.255.255", "3245")
 	go dial(*peerAddr)
 	go readInput()
 
@@ -182,4 +185,39 @@ func Seen(id string) bool {
 	seenIDs.m[id] = true
 	seenIDs.Unlock()
 	return ok
+}
+
+func discoveryClient() {
+	BROADCAST_IPv4 := net.IPv4(255, 255, 255, 255)
+	socket, err := net.DialUDP("udp4", nil, &net.UDPAddr{
+		IP:   BROADCAST_IPv4,
+		Port: discPort,
+	})
+	if err != nil {
+		log.Fatal("Couldn't send UDP?!?!")
+	}
+	socket.Write([]byte(fmt.Sprintf("%s:%s", addr, port)))
+	log.Printf("Sent a discovery packet!")
+
+}
+
+func discoveryListen() {
+	socket, err := net.ListenUDP("udp4", &net.UDPAddr{
+		IP:   net.IPv4(0, 0, 0, 0),
+		Port: discPort,
+	})
+
+	if err != nil {
+		log.Fatal("Couldn't open UDP?!?")
+	}
+	for {
+		data := make([]byte, 4096)
+		_, remoteAddr, err := socket.ReadFromUDP(data)
+		if err != nil {
+			log.Fatal("Problem reading UDP packet")
+		}
+		log.Printf("Adding this address to Peer List: %v", remoteAddr)
+		peers.Add(string(data))
+
+	}
 }
