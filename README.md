@@ -74,7 +74,7 @@ Roughly ordered based on difficulty.
 1. Base ID on hash of Addr + Body + Timestamp - see below
 1. Discover based on [UDP
    broadcasts](https://groups.google.com/d/msg/golang-nuts/nbmYWwHCgPc/ZBw2uH6Bdi4J)
-See below
+See below - *Partially done*
 1. Build web interface into daemon
  1. Simple input form (textbox + submit button)
  1. Chat output (refreshed on a timer or using
@@ -90,8 +90,8 @@ See below
 
 **UDP Broadcast Protocol**
 
-Broadcasts should be of the form: "<IP>:<PORT>" and may be sent on behalf of
-any peers.
+Broadcasts should be of the form: "IP:PORT" (same as ``Addr``) and may be sent on 
+behalf of any peers.
 
 **Timestamp field**
 
