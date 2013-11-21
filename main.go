@@ -43,6 +43,9 @@ func main() {
 	self = l.Addr().String()
 	log.Println("Listening on", self)
 
+	// Redis
+	go StartRedis()
+
 	go dial(*peerAddr)
 	go readInput()
 
@@ -113,6 +116,11 @@ func serve(c net.Conn) {
 			log.Println(err)
 			return
 		}
+
+		// Send to Redis 
+		SendToRedis(m)
+		// End
+
 		if Seen(m.ID) {
 			continue
 		}
