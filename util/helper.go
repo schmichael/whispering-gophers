@@ -3,6 +3,7 @@
 package util
 
 import (
+	"strconv"
 	"crypto/rand"
 	"errors"
 	"fmt"
@@ -12,11 +13,15 @@ import (
 // Listen returns a Listener that listens on the first available port on the
 // first available non-loopback IPv4 network interface.
 func Listen() (net.Listener, error) {
+	return ListenWithPort(0)
+}
+
+func ListenWithPort(port int) (net.Listener, error) {
 	ip, err := externalIP()
 	if err != nil {
 		return nil, fmt.Errorf("could not find active non-loopback address: %v", err)
 	}
-	return net.Listen("tcp4", ip+":0")
+	return net.Listen("tcp4", ip+":"+strconv.Itoa(port))
 }
 
 func externalIP() (string, error) {
