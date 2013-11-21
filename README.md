@@ -35,6 +35,9 @@ from other peers. At the minimum a well participating peer must:
   messages by ID to avoid rebroadcasting
 * Payloads without a ``Body`` and/or with unknown keys should be silently
   *ignored* to support extensions
+* *Messages are **not** delimited.* Multiple messages should be sent across
+  peer connections. Peers recieving messages must detect the end of the JSON
+  object to know when one message ends and another may begin.
 
 
 Extensions
