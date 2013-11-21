@@ -28,7 +28,7 @@ import (
 var (
 	peerAddr = flag.String("peer", "", "peer host:port")
 	self     string
-	discPort int = 555
+	discPort int = 5555
 )
 
 type Message struct {
@@ -48,7 +48,7 @@ func main() {
 	log.Println("Listening on", self)
 
 	go discoveryListen()
-	go discoveryClient("255.255.255.255", "3245")
+	go discoveryClient()
 	go dial(*peerAddr)
 	go readInput()
 
@@ -196,7 +196,7 @@ func discoveryClient() {
 	if err != nil {
 		log.Fatal("Couldn't send UDP?!?!")
 	}
-	socket.Write([]byte(fmt.Sprintf("%s:%s", addr, port)))
+	socket.Write([]byte(fmt.Sprintf(self)))
 	log.Printf("Sent a discovery packet!")
 
 }
