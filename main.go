@@ -18,16 +18,19 @@ import (
 var (
 	peerAddr = flag.String("peer", "", "peer host:port")
 	bindPort = flag.Int("port", 55555, "port to bind to")
+	nick     = flag.String("nick", "Anonymous Coward", "nickname")
 	self     string
 )
 
 type Message struct {
 	// Random ID for each message used to prevent re-broadcasting messages
-	ID   string
+	ID string
 	// IP:Port combination the peer who sent a message is listening on
 	Addr string
 	// Actual message to display
 	Body string
+	// Nickname
+	Nick string `json:"omitempty"`
 }
 
 func main() {
@@ -126,6 +129,7 @@ func readInput() {
 			ID:   util.RandomID(),
 			Addr: self,
 			Body: s.Text(),
+			Nick: *nick,
 		}
 		Seen(m.ID)
 		broadcast(m)
