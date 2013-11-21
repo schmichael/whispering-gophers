@@ -8,7 +8,6 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"net"
 	"os"
@@ -221,14 +220,15 @@ func discoveryListen() {
 	}
 	for {
 
-		data, err := ioutil.ReadAll(socket)
+		data := make([]byte, 0)
+		_, _, err := socket.ReadFromUDP(data)
 		if err != nil {
 			log.Fatal("Problem reading UDP packet: %v", err)
 		}
 		bcastAddr := string(data)
-		if bcastAddr != self {
+		if bcastAddr != "" && bcastAddr != self {
 			log.Printf("Adding this address to Peer List: %v", bcastAddr)
-			peers.Add(bcastAddr)
+			dial(bcastAddr)
 		}
 
 	}
