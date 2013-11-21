@@ -19,7 +19,7 @@ from other peers. At the minimum a well participating peer must:
 ```json
 {
     "ID": "<globally unique string>",
-    "Addr": "<IP:Port of sender>",
+    "Addr": "<IP:Port the sender is listening on>",
     "Body": "<the actual message to display>"
 }
 ```
@@ -29,16 +29,21 @@ from other peers. At the minimum a well participating peer must:
 * Display messages (``Body`` key) from other peers
 * Disconnect peers which send malformed messages
 * Accept user input as ``Body`` content
-* Send messages to all connected peers
+* Send messages to all known peers.
+* When sending messages ``Addr`` must be the ``IP:Port`` combination the peer
+  is listening on.
 * Connect to new peers seen in ``Addr`` fields of received messages
 * Broadcast all messages to all peers (except ``Addr``); store list of Seen
   messages by ID to avoid rebroadcasting
 * Payloads without a ``Body`` and/or with unknown keys should be silently
   *ignored* to support extensions
-* *Messages are* **not** *delimited or framed.* Multiple messages *should* be
-  sent across peer connections. Peers recieving messages *must* detect the end
-  of the JSON object to know when one message ends and another may begin.
+* *Messages are* **not** *delimited or framed.* Multiple messages *may* be sent
+  across a single connection. Peers recieving messages *must* detect the end of
+  the JSON object to know when one message ends and another may begin.
 
+Connections are unidirectional. In a healthy whispernet each peer will have 1
+outgoing connection to send messages to every other peer, as well as 1 incoming
+connection from each peer for receiving messages.
 
 Extensions
 ----------
