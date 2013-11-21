@@ -8,7 +8,6 @@ import (
 	"github.com/schmichael/whispering-gophers/util"
 )
 
-
 type DataStruct struct {
 	Sender string `json:"sender"`
 	Msg    string `json:"message"`

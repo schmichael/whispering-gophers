@@ -117,13 +117,14 @@ func serve(c net.Conn) {
 			return
 		}
 
+		if Seen(m.ID) {
+			continue
+		}
+		
 		// Send to Redis 
 		SendToRedis(m)
 		// End
 
-		if Seen(m.ID) {
-			continue
-		}
 		fmt.Printf("%#v\n", m)
 		broadcast(m)
 		go dial(m.Addr)
