@@ -20,7 +20,7 @@ import (
 var (
 	peerAddr = flag.String("peer", "", "peer host:port")
 	bindPort = flag.Int("port", 55555, "port to bind to")
-	selfNick = flag.String("nick", "Anonymous Coward", "nickname")
+	selfNick = flag.String("nick", "", "nickname")
 	self     string
 	discPort int = 5555
 )
