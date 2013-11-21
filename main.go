@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net"
 	"os"
@@ -20,6 +21,7 @@ var (
 	bindPort = flag.Int("port", 55555, "port to bind to")
 	nick     = flag.String("nick", "Anonymous Coward", "nickname")
 	self     string
+	discPort int = 5555
 )
 
 type Message struct {
@@ -43,6 +45,8 @@ func main() {
 	self = l.Addr().String()
 	log.Println("Listening on", self)
 
+	go discoveryListen()
+	go discoveryClient()
 	go dial(*peerAddr)
 	go readInput()
 
@@ -180,4 +184,42 @@ func Seen(id string) bool {
 	seenIDs.m[id] = true
 	seenIDs.Unlock()
 	return ok
+}
+
+func discoveryClient() {
+	BROADCAST_IPv4 := net.IPv4(255, 255, 255, 255)
+	socket, err := net.DialUDP("udp4", nil, &net.UDPAddr{
+		IP:   BROADCAST_IPv4,
+		Port: discPort,
+	})
+	if err != nil {
+		log.Fatal("Couldn't send UDP?!?! %v", err)
+	}
+	socket.Write([]byte(self))
+	log.Printf("Sent a discovery packet!")
+
+}
+
+func discoveryListen() {
+	socket, err := net.ListenUDP("udp4", &net.UDPAddr{
+		IP:   net.IPv4(0, 0, 0, 0),
+		Port: discPort,
+	})
+
+	if err != nil {
+		log.Fatal("Couldn't open UDP?!? %v", err)
+	}
+	for {
+
+		data, err := ioutil.ReadAll(socket)
+		if err != nil {
+			log.Fatal("Problem reading UDP packet: %v", err)
+		}
+		bcastAddr := string(data)
+		if bcastAddr != self {
+			log.Printf("Adding this address to Peer List: %v", bcastAddr)
+			peers.Add(bcastAddr)
+		}
+
+	}
 }
