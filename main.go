@@ -18,7 +18,7 @@ import (
 var (
 	peerAddr = flag.String("peer", "", "peer host:port")
 	bindPort = flag.Int("port", 55555, "port to bind to")
-	nick     = flag.String("nick", "Anonymous Coward", "nickname")
+	selfNick     = flag.String("nick", "Anonymous Coward", "nickname")
 	self     string
 )
 
@@ -133,7 +133,7 @@ func readInput() {
 			ID:   util.RandomID(),
 			Addr: self,
 			Body: s.Text(),
-			Nick: *nick,
+			Nick: *selfNick,
 		}
 		Seen(m.ID)
 		broadcast(m)
