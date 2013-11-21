@@ -1,15 +1,5 @@
-// Solution to part 9 of the Whispering Gophers code lab.
-//
-// This program extends part 9.
-//
-// It connects to the peer specified by -peer.
-// It accepts connections from peers and receives messages from them.
-// When it sees a peer with an address it hasn't seen before, it makes a
-// connection to that peer.
-// It adds an ID field containing a random string to each outgoing message.
-// When it recevies a message with an ID it hasn't seen before, it broadcasts
-// that message to all connected peers.
-//
+// Whispering Gophers is a simple whispernet written in Go and based off of
+// Google's excellent code lab: https://code.google.com/p/whispering-gophers/
 package main
 
 import (
@@ -31,8 +21,11 @@ var (
 )
 
 type Message struct {
+	// Random ID for each message used to prevent re-broadcasting messages
 	ID   string
+	// IP:Port combination the peer who sent a message is listening on
 	Addr string
+	// Actual message to display
 	Body string
 }
 
