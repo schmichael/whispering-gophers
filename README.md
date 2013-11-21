@@ -69,8 +69,7 @@ Roughly ordered based on difficulty.
 
 1. ~~Pretty display messages~~ Done!
 1. ~~Nicks!~~ Done!
-1. Drop old messages - requires *Timestamp* field
-1. Forget old messages (the basic daemon slowly uses all memory) - may use
+1. Forget old message IDs (the basic daemon slowly uses all memory) - may use
    *Timestamp* field - see below
 1. Base ID on hash of Addr + Body + Timestamp - see below
 1. Discover based on [UDP
