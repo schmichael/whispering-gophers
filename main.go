@@ -19,7 +19,7 @@ import (
 var (
 	peerAddr = flag.String("peer", "", "peer host:port")
 	bindPort = flag.Int("port", 55555, "port to bind to")
-	nick     = flag.String("nick", "Anonymous Coward", "nickname")
+	selfNick     = flag.String("nick", "Anonymous Coward", "nickname")
 	self     string
 	discPort int = 5555
 )
@@ -120,7 +120,11 @@ func serve(c net.Conn) {
 		if Seen(m.ID) {
 			continue
 		}
-		fmt.Printf("%#v\n", m)
+		nick := m.Nick
+		if(nick == "") {
+			nick = m.Addr
+		}
+		fmt.Printf("%s: %s\n", nick, m.Body)
 		broadcast(m)
 		go dial(m.Addr)
 	}
@@ -133,7 +137,7 @@ func readInput() {
 			ID:   util.RandomID(),
 			Addr: self,
 			Body: s.Text(),
-			Nick: *nick,
+			Nick: *selfNick,
 		}
 		Seen(m.ID)
 		broadcast(m)
