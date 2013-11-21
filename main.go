@@ -17,6 +17,7 @@ import (
 
 var (
 	peerAddr = flag.String("peer", "", "peer host:port")
+	bindPort = flag.Int("port", 55555, "port to bind to")
 	self     string
 )
 
@@ -32,7 +33,7 @@ type Message struct {
 func main() {
 	flag.Parse()
 
-	l, err := util.Listen()
+	l, err := util.ListenWithPort(*bindPort)
 	if err != nil {
 		log.Fatal(err)
 	}
