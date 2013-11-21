@@ -219,8 +219,8 @@ func discoveryListen() {
 	}
 	for {
 
-        data := make([]byte, 0)
-        _, _, err := socket.ReadFromUDP(data)
+		data := make([]byte, 0)
+		_, _, err := socket.ReadFromUDP(data)
 		if err != nil {
 			log.Fatal("Problem reading UDP packet: %v", err)
 		}
