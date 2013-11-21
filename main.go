@@ -195,9 +195,9 @@ func discoveryClient() {
 		Port: discPort,
 	})
 	if err != nil {
-		log.Fatal("Couldn't send UDP?!?!")
+		log.Fatal("Couldn't send UDP?!?! %v", err)
 	}
-	socket.Write([]byte(fmt.Sprintf(self)))
+	socket.Write([]byte(self))
 	log.Printf("Sent a discovery packet!")
 
 }
@@ -209,13 +209,13 @@ func discoveryListen() {
 	})
 
 	if err != nil {
-		log.Fatal("Couldn't open UDP?!?")
+		log.Fatal("Couldn't open UDP?!? %v", err)
 	}
 	for {
 
 		data, err := ioutil.ReadAll(socket)
 		if err != nil {
-			log.Fatal("Problem reading UDP packet")
+			log.Fatal("Problem reading UDP packet: %v", err)
 		}
 		bcastAddr := string(data)
 		if bcastAddr != self {
