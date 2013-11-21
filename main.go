@@ -44,11 +44,20 @@ func main() {
 		log.Fatalf("Unable to listen on port %d: %v", *bindPort, err)
 	}
 	self = l.Addr().String()
-	log.Println("Listening on", self)
+	if *selfNick == "" {
+		log.Println("Listening on", self)
+	} else {
+		log.Printf("Listening on %s as nick %s", self, *selfNick)
+	}
 
 	go discoveryListen()
 	go discoveryClient()
-	go dial(*peerAddr)
+
+	if *peerAddr != "" {
+		go dial(*peerAddr)
+	} else {
+		log.Println("No -peer specified. Waiting to receive discovery packets.")
+	}
 	go readInput()
 
 	for {
@@ -138,14 +147,17 @@ func serve(c net.Conn) {
 func readInput() {
 	s := bufio.NewScanner(os.Stdin)
 	for s.Scan() {
-		m := Message{
-			ID:   util.RandomID(),
-			Addr: self,
-			Body: s.Text(),
-			Nick: *selfNick,
+		body := s.Text()
+		if body != "" {
+			m := Message{
+				ID:   util.RandomID(),
+				Addr: self,
+				Body: s.Text(),
+				Nick: *selfNick,
+			}
+			Seen(m.ID)
+			broadcast(m)
 		}
-		Seen(m.ID)
-		broadcast(m)
 	}
 	if err := s.Err(); err != nil {
 		log.Fatal(err)
@@ -202,7 +214,7 @@ func discoveryClient() {
 		Port: discPort,
 	})
 	if err != nil {
-		log.Fatal("Couldn't send UDP?!?! %v", err)
+		log.Fatalf("Couldn't send UDP?!?! %v", err)
 	}
 	socket.Write([]byte(self))
 	log.Printf("Sent a discovery packet!")
@@ -216,7 +228,12 @@ func discoveryListen() {
 	})
 
 	if err != nil {
-		log.Fatal("Couldn't open UDP?!? %v", err)
+		if e2, ok := err.(*net.OpError); ok && e2.Err.Error() == "address already in use" {
+			log.Printf("UDP discovery port %d already in use. Inbound discovery disabled.", discPort)
+			return
+		} else {
+			log.Fatalf("Couldn't open UDP?!? %v", err)
+		}
 	}
 	for {
 
