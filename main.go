@@ -227,7 +227,6 @@ func discoveryClient() {
 	}
 	socket.Write([]byte(self))
 	log.Printf("Sent a discovery packet!")
-
 }
 
 func discoveryListen() {
