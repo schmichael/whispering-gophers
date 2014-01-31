@@ -11,6 +11,7 @@ import (
 	"log"
 	"net"
 	"os"
+	"strings"
 	"sync"
 	"time"
 
@@ -142,7 +143,11 @@ func serve(c net.Conn) {
 		if nick == "" {
 			nick = m.Addr
 		}
-		fmt.Printf("%s: %s\n", nick, m.Body)
+		if m.Body[0] == '/' {
+			handleCommand(&m)
+		} else {
+			fmt.Printf("%s: %s\n", nick, m.Body)
+		}
 		broadcast(m)
 		go dial(m.Addr)
 	}
@@ -155,6 +160,12 @@ func createMessage(m string) Message {
 		Body:      m,
 		Nick:      *selfNick,
 		Timestamp: time.Now().Unix(),
+	}
+}
+
+func handleCommand(m *Message) {
+	if strings.HasPrefix(m.Body, "/me ") {
+		fmt.Printf("%s %s\n", m.Nick, strings.TrimLeft(m.Body, "/me "))
 	}
 }
 
