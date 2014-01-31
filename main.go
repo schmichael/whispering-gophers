@@ -127,12 +127,9 @@ func (p *Peers) Get() []string {
 
 func broadcast(m Message) {
 	for _, ch := range peers.List() {
-		select {
-		case ch <- m:
-		default:
-			// Okay to drop messages sometimes.
-		}
-	}
+		ch <- m
+    // Never drop the message!!!!!!
+  }
 }
 
 func serve(c net.Conn) {
