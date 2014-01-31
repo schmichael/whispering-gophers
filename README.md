@@ -7,15 +7,17 @@ Based on: https://code.google.com/p/whispering-gophers/
 
 Getting Started
 ---------------
-If you have not worked in GO before (i.e., don't have a GOPATH, then start here:
+If you have not worked in GO before (i.e., don't have a GOPATH), then start here:
 
-  mkdir ~/somedir
-  cd somedir
-  export GOPATH=~/somedir
-  git clone https://github.com/pdxgo/whispering-gophers.git
-  go get github.com/pdxgo/whispering-gophers
-  cd whispering-gophers
-  go build
+```
+mkdir ~/somedir
+cd somedir
+export GOPATH=~/somedir
+git clone https://github.com/pdxgo/whispering-gophers.git
+go get github.com/pdxgo/whispering-gophers
+cd whispering-gophers
+go build
+```
 
 
 Running
