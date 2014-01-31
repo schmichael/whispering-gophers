@@ -165,7 +165,7 @@ func createMessage(m string) Message {
 
 func handleCommand(m *Message) {
 	if strings.HasPrefix(m.Body, "/me ") {
-		fmt.Printf("%s %s\n", m.Nick, strings.TrimLeft(m.Body, "/me "))
+		fmt.Printf("%s %s\n", m.Nick, m.Body[4:])
 	}
 }
 
