@@ -261,7 +261,9 @@ func discoveryListen() {
 			log.Printf("UDP discovery port %d already in use. Inbound discovery disabled.", discPort)
 			return
 		} else {
-			log.Fatalf("Couldn't open UDP?!? %v", err)
+			log.Printf("Couldn't open UDP?!? %v", err)
+			log.Println("Discovery will not be possible")
+			return
 		}
 	}
 	for {
