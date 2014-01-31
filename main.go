@@ -148,18 +148,22 @@ func serve(c net.Conn) {
 	}
 }
 
+func createMessage(m string) Message {
+	return Message{
+		ID:        util.RandomID(),
+		Addr:      self,
+		Body:      m,
+		Nick:      *selfNick,
+		Timestamp: time.Now().Unix(),
+	}
+}
+
 func readInput() {
 	s := bufio.NewScanner(os.Stdin)
 	for s.Scan() {
 		body := s.Text()
 		if body != "" {
-			m := Message{
-				ID:        util.RandomID(),
-				Addr:      self,
-				Body:      s.Text(),
-				Nick:      *selfNick,
-				Timestamp: time.Now().Unix(),
-			}
+			m := createMessage(body)
 			Seen(m.ID)
 			broadcast(m)
 		}
