@@ -16,12 +16,14 @@ import (
 	"time"
 
 	"github.com/pdxgo/whispering-gophers/util"
+	"github.com/pdxgo/whispering-gophers/http"
 )
 
 var (
 	peerAddr = flag.String("peer", "", "peer host:port")
 	bindPort = flag.Int("port", 55555, "port to bind to")
 	selfNick = flag.String("nick", "", "nickname")
+	httpAddr = flag.String("http", "localhost:8888", "local http interface")
 	self     string
 	discPort = 5555
 )
@@ -57,6 +59,7 @@ func main() {
 
 	go discoveryListen()
 	go discoveryClient()
+	go http.Serve(*httpAddr, peers.Get)
 
 	if *peerAddr != "" {
 		go dial(*peerAddr)
@@ -110,6 +113,16 @@ func (p *Peers) List() []chan<- Message {
 		l = append(l, ch)
 	}
 	return l
+}
+
+func (p *Peers) Get() []string {
+	p.mu.RLock()
+	defer p.mu.RUnlock()
+	out := make([]string, len(p.m))
+	for peer, _ := range p.m {
+		out = append(out, peer)
+	}
+	return out
 }
 
 func broadcast(m Message) {
