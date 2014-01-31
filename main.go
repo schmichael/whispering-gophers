@@ -169,14 +169,24 @@ func handleCommand(m *Message) {
 	}
 }
 
+func doCommand(command string) {
+	if strings.HasPrefix(command, "/connect ") {
+		addr := strings.TrimLeft(command, "/connect ")
+		go dial(addr)
+	}
+}
 func readInput() {
 	s := bufio.NewScanner(os.Stdin)
 	for s.Scan() {
 		body := s.Text()
 		if body != "" {
-			m := createMessage(body)
-			Seen(m.ID)
-			broadcast(m)
+			if body[0] == '/' {
+				doCommand(body)
+			} else {
+				m := createMessage(body)
+				Seen(m.ID)
+				broadcast(m)
+			}
 		}
 	}
 	if err := s.Err(); err != nil {
