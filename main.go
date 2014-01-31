@@ -16,12 +16,14 @@ import (
 	"time"
 
 	"github.com/pdxgo/whispering-gophers/util"
+	"github.com/pdxgo/whispering-gophers/http"
 )
 
 var (
 	peerAddr = flag.String("peer", "", "peer host:port")
 	bindPort = flag.Int("port", 55555, "port to bind to")
 	selfNick = flag.String("nick", "", "nickname")
+	httpAddr = flag.String("http", "localhost:8888", "local http interface")
 	self     string
 	discPort = 5555
 )
@@ -57,6 +59,7 @@ func main() {
 
 	go discoveryListen()
 	go discoveryClient()
+	go http.Serve(*httpAddr, peers.Get)
 
 	if *peerAddr != "" {
 		go dial(*peerAddr)
@@ -112,6 +115,16 @@ func (p *Peers) List() []chan<- Message {
 	return l
 }
 
+func (p *Peers) Get() []string {
+	p.mu.RLock()
+	defer p.mu.RUnlock()
+	out := make([]string, len(p.m))
+	for peer, _ := range p.m {
+		out = append(out, peer)
+	}
+	return out
+}
+
 func broadcast(m Message) {
 	for _, ch := range peers.List() {
 		ch <- m
@@ -162,18 +175,28 @@ func createMessage(m string) Message {
 
 func handleCommand(m *Message) {
 	if strings.HasPrefix(m.Body, "/me ") {
-		fmt.Printf("%s %s\n", m.Nick, strings.TrimLeft(m.Body, "/me "))
+		fmt.Printf("%s %s\n", m.Nick, m.Body[4:])
 	}
 }
 
+func doCommand(command string) {
+	if strings.HasPrefix(command, "/connect ") {
+		addr := strings.TrimLeft(command, "/connect ")
+		go dial(addr)
+	}
+}
 func readInput() {
 	s := bufio.NewScanner(os.Stdin)
 	for s.Scan() {
 		body := s.Text()
 		if body != "" {
-			m := createMessage(body)
-			Seen(m.ID)
-			broadcast(m)
+			if body[0] == '/' {
+				doCommand(body)
+			} else {
+				m := createMessage(body)
+				Seen(m.ID)
+				broadcast(m)
+			}
 		}
 	}
 	if err := s.Err(); err != nil {
@@ -248,7 +271,9 @@ func discoveryListen() {
 			log.Printf("UDP discovery port %d already in use. Inbound discovery disabled.", discPort)
 			return
 		} else {
-			log.Fatalf("Couldn't open UDP?!? %v", err)
+			log.Printf("Couldn't open UDP?!? %v", err)
+			log.Println("Discovery will not be possible")
+			return
 		}
 	}
 	for {
