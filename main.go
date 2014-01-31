@@ -12,6 +12,7 @@ import (
 	"net"
 	"os"
 	"sync"
+	"time"
 
 	"github.com/pdxgo/whispering-gophers/util"
 )
@@ -34,6 +35,9 @@ type Message struct {
 	Body string
 	// Nickname
 	Nick string `json:"omitempty"`
+
+	// In Unix Timestampe format
+	Timestamp int64
 }
 
 func main() {
@@ -150,10 +154,11 @@ func readInput() {
 		body := s.Text()
 		if body != "" {
 			m := Message{
-				ID:   util.RandomID(),
-				Addr: self,
-				Body: s.Text(),
-				Nick: *selfNick,
+				ID:        util.RandomID(),
+				Addr:      self,
+				Body:      s.Text(),
+				Nick:      *selfNick,
+				Timestamp: time.Now().Unix(),
 			}
 			Seen(m.ID)
 			broadcast(m)
