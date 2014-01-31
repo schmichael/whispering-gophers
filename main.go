@@ -13,7 +13,7 @@ import (
 	"os"
 	"sync"
 
-	"github.com/schmichael/whispering-gophers/util"
+	"github.com/pdxgo/whispering-gophers/util"
 )
 
 var (
