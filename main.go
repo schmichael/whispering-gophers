@@ -15,8 +15,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/pdxgo/whispering-gophers/util"
 	"github.com/pdxgo/whispering-gophers/http"
+	"github.com/pdxgo/whispering-gophers/util"
 )
 
 var (
@@ -26,6 +26,12 @@ var (
 	httpAddr = flag.String("http", "localhost:8888", "local http interface")
 	self     string
 	discPort = 5555
+	emojis   = map[string]string{
+		":shrug:":   `¯\_(ツ)_/¯`,
+		":gopher:":  `ʕ◔ϖ◔ʔ`,
+		":goshrug:": `¯\_ʕ◔ϖ◔ʔ_/¯`,
+		":goshine:": `✨ʕ◔ϖ◔ʔ✨`,
+	}
 )
 
 // Defines a single message sent from one peer to another
@@ -128,19 +134,19 @@ func (p *Peers) Get() []string {
 func broadcast(m Message) {
 	for _, ch := range peers.List() {
 		ch <- m
-    // Never drop the message!!!!!!
-  }
+		// Never drop the message!!!!!!
+	}
 }
 
 func serve(c net.Conn) {
 	defer c.Close()
 	d := json.NewDecoder(c)
+	var m Message
 	for {
-		var m Message
 		err := d.Decode(&m)
 		if err != nil {
 			if err == io.EOF {
-				log.Printf("%s disconnected. %d peers remaining.", c.RemoteAddr(), len(peers.m))
+				log.Printf("%s (%s) disconnected. %d peers remaining.", m.Nick, c.RemoteAddr(), len(peers.m))
 			} else {
 				log.Printf("%s disconnected with %v. %d peers remaining.", c.RemoteAddr(), err, len(peers.m))
 			}
@@ -164,6 +170,9 @@ func serve(c net.Conn) {
 }
 
 func createMessage(m string) Message {
+	for shortcut, emoji := range emojis {
+		m = strings.Replace(m, shortcut, emoji, -1)
+	}
 	return Message{
 		ID:        util.RandomID(),
 		Addr:      self,
@@ -183,6 +192,9 @@ func doCommand(command string) {
 	if strings.HasPrefix(command, "/connect ") {
 		addr := strings.TrimLeft(command, "/connect ")
 		go dial(addr)
+	}
+	if strings.HasPrefix(command, "/nick ") {
+		*selfNick = strings.TrimLeft(command, "/nick ")
 	}
 }
 func readInput() {
